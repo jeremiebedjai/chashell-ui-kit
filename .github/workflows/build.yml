@@ -1,0 +1,53 @@
+name: Build and Release
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build_and_release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "16"
+
+      - name: Get version
+        id: package_version
+        run: echo "::set-output name=version::$(node -p "require('./package.json').version")"
+
+      - name: Use version
+        run: echo "Version is ${{ steps.package_version.outputs.version }}"
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Archive Production Artifact
+        run: |
+          tar -czvf chashell-ui-components.tar.gz dist
+
+      - name: Create Release and Upload Asset
+        run: ./update_release.sh ${{ github.ref_name }} ./chashell-ui-components.tar.gz
+
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up npm credentials
+        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+
+      - name: Navigate and publish
+        run: |
+          cd dist
+          npm publish --access public
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
