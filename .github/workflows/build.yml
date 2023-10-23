@@ -1,0 +1,41 @@
+name: Build and Release
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build_and_release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Archive Production Artifact
+        run: |
+          tar -czvf chashell-ui-components.tar.gz dist
+
+      - name: Debug tree
+        run: |
+          ls -lg ./chashell-ui-components.tar.gz
+
+      - name: Create Release and Upload Asset
+        run: ./update_release.sh ${{ github.ref_name }} ./chashell-ui-components.tar.gz
+
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
