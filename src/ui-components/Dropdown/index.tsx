@@ -65,7 +65,7 @@ const Dropdown = ({
   return (
     <div
       ref={parentRef}
-      className={"relative"}
+      className={"relative inline-flex"}
       onMouseLeave={(e) => closeOnLeave && setOpenCallback(e, false)}
     >
       {buttonElement ? (

@@ -67,7 +67,6 @@ const FileNavigation = ({
                 <Dropdown
                   key={file.absPath}
                   className="rounded-none p-2"
-                  dark
                   openOnCursorPos
                   openOnClick
                   buttonElement={

@@ -16,7 +16,6 @@ export default {
         xl: "1440px",
       },
       colors: {
-        primary: "#ff8200",
         light1: "#dee5ea",
         light2: "#d4d5dc",
         dark1: "#232632",
