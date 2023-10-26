@@ -124,7 +124,7 @@ FileNavigation.File = ({
   layout = "list",
   active,
   setActiveFile,
-  color = "gray",
+  color,
   ...file
 }: FileProps) => {
   const ext = file.name.split(".").pop() ?? "default";

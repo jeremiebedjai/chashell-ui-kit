@@ -25,7 +25,6 @@ export const Try_It: Story = {
     name: "home",
     absPath: "/home",
     user: "username",
-    color: "gray",
   },
 };
 

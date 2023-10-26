@@ -28,6 +28,5 @@ export const Try_It: Story = {
     absPath: "/file",
     user: "username",
     layout: "grid",
-    color: "gray",
   },
 };

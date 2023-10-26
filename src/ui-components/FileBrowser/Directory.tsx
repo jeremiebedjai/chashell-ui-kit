@@ -42,7 +42,7 @@ DirectoryNavigation.Directory = ({
   loadingMessage = "Syncing...",
   activeClassName = "",
   className = "",
-  color = "gray",
+  color,
   ...filBrowser
 }: DirectoryProps) => {
   const [isOpen, setOpen] = useState(open);
@@ -121,8 +121,10 @@ DirectoryNavigation.Directory = ({
       {isOpen && (
         <>
           {loading ? (
-            <div className="flex items-center animate-pulse text-stone-400 dark:text-stone-600 text-sm pl-4">
-              <Loading.Spin className="w-4 h-4" /> {loadingMessage}
+            <div className=" animate-pulse text-sm pl-4">
+              <div className="opacity-50 flex flex items-center">
+                <Loading.Spin className="w-4 h-4" /> {loadingMessage}
+              </div>
             </div>
           ) : children ? (
             React.Children.map(children, (item) => (
