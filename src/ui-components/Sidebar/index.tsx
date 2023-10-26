@@ -40,9 +40,10 @@ type ItemProps = {
   icon: string;
   children: ReactNode;
   name: string;
+  buttonProps: Parameters<typeof Button>[0];
 };
 
-Sidebar.Item = ({ children, icon, name }: ItemProps) => {
+Sidebar.Item = ({ children, icon, name, buttonProps }: ItemProps) => {
   const { active, onCallback } = useContext(SidebarContext);
   const isActive = active === name;
   const ButtonElement = () => (
@@ -53,6 +54,7 @@ Sidebar.Item = ({ children, icon, name }: ItemProps) => {
         iconProps={icon}
         active={isActive}
         onClick={() => onCallback && onCallback(name)}
+        {...buttonProps}
       >
         {children}
       </Button>
@@ -62,6 +64,7 @@ Sidebar.Item = ({ children, icon, name }: ItemProps) => {
         iconProps={icon}
         active={isActive}
         onClick={() => onCallback && onCallback(name)}
+        {...buttonProps}
       />
     </>
   );

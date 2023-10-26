@@ -1,18 +1,28 @@
+import React, {
+  Dispatch,
+  ReactNode,
+  SetStateAction,
+  useContext,
+  useState,
+} from "react";
 import { IFileBrowser } from "./models/IFileBrowser";
-import React, { Dispatch, SetStateAction, useContext, useState } from "react";
 import FileBrowserContext from "./contexts/FileBrowser.ctx";
 import Icon from "../Icon";
 import Button from "../Button";
 import Loading from "../Loading";
-import Dropdown from "../Dropdown";
+import { Dropdown } from "../../index";
 
 type FileNavigationProps = {
   loadings?: string[];
   loadingMessage?: string;
+  fileDropdown?: (file: IFileBrowser) => ReactNode;
+  colors?: FileProps["color"];
 };
 const FileNavigation = ({
   loadings = [],
   loadingMessage,
+  fileDropdown,
+  colors,
 }: FileNavigationProps) => {
   const { active: fileDir } = useContext(FileBrowserContext);
   const [layout, setLayout] = useState<"list" | "grid">("list");
@@ -31,7 +41,7 @@ const FileNavigation = ({
   }
 
   return (
-    <div>
+    <div className="w-full ">
       <div className="flex opacity-75">
         <Button
           active={layout === "grid"}
@@ -49,47 +59,30 @@ const FileNavigation = ({
       <div className={`flex ${injectedClasses}`}>
         {loading ? (
           <FileNavigation.Loading loadingMessage={loadingMessage} />
-        ) : fileDir?.content ? (
+        ) : fileDir?.content && fileDropdown ? (
           fileDir.content
             .filter(({ isDir }) => !isDir)
             .map((file) => (
-              <Dropdown
-                key={file.absPath}
-                className="rounded-none p-2"
-                dark
-                openOnCursorPos
-                openOnClick
-                buttonElement={
-                  <FileNavigation.File
-                    setActiveFile={setActiveFile}
-                    layout={layout}
-                    active={activeFile}
-                    {...file}
-                  />
-                }
-              >
-                <Button
-                  variant={Button.Variants.light}
-                  iconProps={{ name: "download-outline", size: 13 }}
-                  className="text-sm"
+              <div className="group">
+                <Dropdown
+                  key={file.absPath}
+                  className="rounded-none p-2"
+                  dark
+                  openOnCursorPos
+                  openOnClick
+                  buttonElement={
+                    <FileNavigation.File
+                      color={colors}
+                      setActiveFile={setActiveFile}
+                      layout={layout}
+                      active={activeFile}
+                      {...file}
+                    />
+                  }
                 >
-                  Download File
-                </Button>
-                <Button
-                  variant={Button.Variants.light}
-                  iconProps={{ name: "refresh-outline", size: 13 }}
-                  className="text-sm"
-                >
-                  Refresh Folder
-                </Button>
-                <Button
-                  variant={Button.Variants.light}
-                  iconProps={{ name: "trash-outline", size: 13 }}
-                  className="text-sm fill-red-500 text-red-500"
-                >
-                  Delete File
-                </Button>
-              </Dropdown>
+                  {fileDropdown(file)}
+                </Dropdown>
+              </div>
             ))
         ) : null}
       </div>
@@ -97,89 +90,87 @@ const FileNavigation = ({
   );
 };
 
-type FileIconMapping = {
-  icon: string;
-  color: string;
-};
-
-const extensionsMapping: Record<string, FileIconMapping> = {
-  jpg: {
-    icon: "image-2",
-    color: "fill-rose-500 text-rose-500 dark:fill-rose-500 dark:text-rose-500",
-  },
-  png: {
-    icon: "image-2",
-    color: "fill-rose-500 text-rose-500 dark:fill-rose-500 dark:text-rose-500",
-  },
-  gif: {
-    icon: "image-2",
-    color: "fill-rose-500 text-rose-500 dark:fill-rose-500 dark:text-rose-500",
-  },
-  docx: {
-    icon: "file-text",
-    color: "fill-rose-500 text-rose-500 dark:fill-rose-500 dark:text-rose-500",
-  },
-  pdf: {
-    icon: "file-text",
-    color: "fill-rose-500 text-rose-500 dark:fill-rose-500 dark:text-rose-500",
-  },
-  mp4: {
-    icon: "film",
-    color: "fill-rose-500 text-rose-500 dark:fill-rose-500 dark:text-rose-500",
-  },
-  mkv: {
-    icon: "film",
-    color: "fill-rose-500 text-rose-500 dark:fill-rose-500 dark:text-rose-500",
-  },
-  zip: {
-    icon: "archive",
-    color: "fill-rose-500 text-rose-500 dark:fill-rose-500 dark:text-rose-500",
-  },
-  tar: {
-    icon: "archive",
-    color: "fill-rose-500 text-rose-500 dark:fill-rose-500 dark:text-rose-500",
-  },
-  txt: {
-    icon: "file-text",
-    color:
-      "fill-slate-600 text-slate-600 dark:fill-slate-400 dark:text-slate-400",
-  },
+const extensionsMapping: Record<string, string> = {
+  jpg: "image-2",
+  png: "image-2",
+  gif: "image-2",
+  docx: "file-text",
+  pdf: "file-text",
+  mp4: "film",
+  mkv: "film",
+  zip: "archive",
+  tar: "archive",
+  txt: "file-text",
   // ... add more if necessary
-  default: {
-    icon: "file",
-    color:
-      "fill-slate-600 text-slate-600 dark:fill-slate-400 dark:text-slate-400",
-  },
+  default: "file",
 };
 
 type FileProps = {
   layout: "list" | "grid";
-  setActiveFile: Dispatch<SetStateAction<IFileBrowser | undefined>>;
-  active: IFileBrowser | undefined;
-} & IFileBrowser;
+  setActiveFile?: Dispatch<SetStateAction<IFileBrowser | undefined>>;
+  active?: IFileBrowser | undefined;
+  color?: (typeof FileColors)[keyof typeof FileColors];
+} & Omit<IFileBrowser, "isDir">;
+
+const FileColors = {
+  info: "info",
+  warning: "warning",
+  success: "success",
+  danger: "danger",
+  gray: "gray",
+};
 
 FileNavigation.File = ({
   layout = "list",
   active,
   setActiveFile,
+  color = "gray",
   ...file
 }: FileProps) => {
   const ext = file.name.split(".").pop() ?? "default";
-  const { icon, color } =
-    extensionsMapping[ext in extensionsMapping ? ext : "default"];
+  const icon = extensionsMapping[ext in extensionsMapping ? ext : "default"];
 
-  let injectedClasses = "  box-border ";
-  if (active?.absPath === file.absPath) {
-    injectedClasses +=
-      "border border-primary/[.7] dark:border-primary-dark/[.7] ";
+  const injectedColors = {
+    fill: "",
+    background: "",
+    text: "",
+  };
+
+  switch (color) {
+    case "success":
+      injectedColors.text = "text-emerald-500";
+      injectedColors.fill = "fill-emerald-500";
+      injectedColors.background = "bg-emerald-500";
+      break;
+    case "warning":
+      injectedColors.text = "text-amber-500";
+      injectedColors.fill = "fill-amber-500";
+      injectedColors.background = "bg-amber-500";
+      break;
+    case "info":
+      injectedColors.text = "text-sky-500";
+      injectedColors.fill = "fill-sky-500";
+      injectedColors.background = "bg-sky-500";
+      break;
+    case "danger":
+      injectedColors.text = "text-red-500";
+      injectedColors.fill = "fill-red-500";
+      injectedColors.background = "bg-red-500";
+      break;
+    case "gray":
+      injectedColors.text = "text-stone-500";
+      injectedColors.fill = "fill-stone-500";
+      injectedColors.background = "bg-stone-500";
   }
 
   return (
     <>
       {layout === "grid" && (
         <div
-          className={`${color} flex flex-col gap-2 items-center group cursor-pointer`}
-          onClick={() => setActiveFile(file)}
+          className={`flex flex-col gap-2 items-center group cursor-pointer  ${injectedColors.fill} ${injectedColors.text}`}
+          onClick={() =>
+            setActiveFile && setActiveFile({ ...file, isDir: false })
+          }
         >
           <Icon
             name={icon}
@@ -187,7 +178,7 @@ FileNavigation.File = ({
             className="opacity-90 group-hover:opacity-100"
           />
           <div
-            className={`flex flex-col ${injectedClasses} text-sm text-center bg-light2 dark:bg-dark2 opacity-90 group-hover:opacity-100 px-2 rounded-md`}
+            className={`flex flex-col text-sm text-center ${injectedColors.background} bg-opacity-[0.1] opacity-90 group-hover:opacity-100 px-2 rounded-md`}
           >
             {file.name}
             <span className="opacity-50 group-hover:opacity-75 text-xs">
@@ -198,8 +189,10 @@ FileNavigation.File = ({
       )}
       {layout === "list" && (
         <div
-          onClick={() => setActiveFile(file)}
-          className={` ${color} ${injectedClasses} justify-between text-sm p-2 rounded-sm flex gap-1 items-center group cursor-pointer py-1 odd:bg-light2 dark:odd:bg-dark2`}
+          onClick={() =>
+            setActiveFile && setActiveFile({ ...file, isDir: false })
+          }
+          className={`justify-between text-sm p-2 rounded-sm flex gap-1 items-center group cursor-pointer py-1 ${injectedColors.fill} ${injectedColors.text}  ${injectedColors.background} bg-opacity-[0.1] group-odd:bg-opacity-[0.05]`}
         >
           <div className="flex">
             <Icon
@@ -219,6 +212,8 @@ FileNavigation.File = ({
     </>
   );
 };
+
+FileNavigation.Colors = FileColors;
 
 FileNavigation.Loading = ({
   loadingMessage = "Syncing...",

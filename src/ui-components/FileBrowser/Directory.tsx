@@ -4,6 +4,14 @@ import FileBrowserContext from "./contexts/FileBrowser.ctx";
 import { IFileBrowser } from "./models/IFileBrowser";
 import Loading from "../Loading";
 
+const DirectoryColors = {
+  info: "info",
+  warning: "warning",
+  success: "success",
+  danger: "danger",
+  gray: "gray",
+};
+
 type DirectoryProps = {
   children?: ReactNode;
   active?: boolean;
@@ -11,8 +19,11 @@ type DirectoryProps = {
   onOpen?: (key: string) => unknown;
   open?: boolean;
   loadingMessage?: string;
+  activeClassName?: string;
+  className?: string;
   loading?: boolean;
-} & IFileBrowser;
+  color?: (typeof DirectoryColors)[keyof typeof DirectoryColors];
+} & Omit<IFileBrowser, "isDir">;
 
 type NavigationProps = {
   children?: ReactNode;
@@ -29,6 +40,9 @@ DirectoryNavigation.Directory = ({
   onOpen,
   loading = false,
   loadingMessage = "Syncing...",
+  activeClassName = "",
+  className = "",
+  color = "gray",
   ...filBrowser
 }: DirectoryProps) => {
   const [isOpen, setOpen] = useState(open);
@@ -36,14 +50,43 @@ DirectoryNavigation.Directory = ({
 
   const isActive = active?.absPath === filBrowser.absPath;
 
+  const injectedColors = {
+    fill: "",
+    background: "",
+    text: "",
+  };
+
+  switch (color) {
+    case "success":
+      injectedColors.text = "text-emerald-500";
+      injectedColors.fill = "fill-emerald-500";
+      injectedColors.background = "bg-emerald-500";
+      break;
+    case "warning":
+      injectedColors.text = "text-amber-500";
+      injectedColors.fill = "fill-amber-500";
+      injectedColors.background = "bg-amber-500";
+      break;
+    case "info":
+      injectedColors.text = "text-sky-500";
+      injectedColors.fill = "fill-sky-500";
+      break;
+    case "danger":
+      injectedColors.text = "text-red-500";
+      injectedColors.fill = "fill-red-500";
+      break;
+    case "gray":
+      injectedColors.text = "text-stone-500";
+      injectedColors.fill = "fill-stone-500";
+  }
+
   return (
     <div className="pl-2 select-none">
       <div
-        className={`py-1 flex items-center
-          ${
-            isActive &&
-            "fill-primary text-primary dark:fill-primary-dark dark:text-primary-dark"
-          }`}
+        className={`py-1 flex items-center ${injectedColors.text} ${
+          injectedColors.fill
+        } ${className}
+          ${isActive && `underline ${activeClassName}`}`}
       >
         <div className="flex gap-1 cursor-pointer">
           {/* Arrow Icon */}
@@ -62,10 +105,9 @@ DirectoryNavigation.Directory = ({
           </span>
           {/* Folder Icon */}
           <span
-            className={`flex items-center gap-1 hover:opacity-75 cursor-pointer w-[max-content]
-            ${isActive ? "!opacity-100" : "opacity-50"}`}
+            className={`flex items-center gap-1 hover:opacity-80 active:opacity-75 cursor-pointer w-[max-content]`}
             onClick={() => {
-              if (setActive) setActive(filBrowser);
+              if (setActive) setActive({ ...filBrowser, isDir: true });
               if (isActive) setOpen(!isOpen);
               if (onClick) onClick(filBrowser.absPath);
             }}
@@ -79,7 +121,7 @@ DirectoryNavigation.Directory = ({
       {isOpen && (
         <>
           {loading ? (
-            <div className="flex items-center animate-pulse text-slate-400 dark:text-slate-600 text-sm pl-4">
+            <div className="flex items-center animate-pulse text-stone-400 dark:text-stone-600 text-sm pl-4">
               <Loading.Spin className="w-4 h-4" /> {loadingMessage}
             </div>
           ) : children ? (
@@ -101,5 +143,5 @@ DirectoryNavigation.Directory = ({
     </div>
   );
 };
-
+DirectoryNavigation.Colors = DirectoryColors;
 export default DirectoryNavigation;

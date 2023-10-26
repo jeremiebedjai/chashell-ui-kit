@@ -48,7 +48,7 @@ const Button = ({
   size = "md",
   ...buttonProps
 }: ButtonProps) => {
-  let injectedClasses = `${className} ` ?? "";
+  let injectedClasses = "";
   const injectedColors = {
     fill: "",
     fillLight: "",
@@ -220,7 +220,7 @@ const Button = ({
 
   return (
     <span
-      className={`${injectedClasses} flex gap-2 select-none justify-items-center items-center h-fit  ${injectedSizes.p1} ${injectedSizes.rounded} ${injectedSizes.fontSize}`}
+      className={`${injectedClasses} ${className} flex gap-2 select-none justify-items-center items-center h-fit  ${injectedSizes.p1} ${injectedSizes.rounded} ${injectedSizes.fontSize}`}
       onClick={onClick}
       {...buttonProps}
     >

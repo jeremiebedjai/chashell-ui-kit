@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react";
 import Button from "./index";
 
@@ -146,6 +146,107 @@ export const Highlighted: Story = {
         </Button>
         <Button color="gray" variant="high" iconProps="trash">
           Neutral
+        </Button>
+      </div>
+    </div>
+  ),
+};
+
+export const Tabs_Button = () => {
+  const [active, setActive] = useState("home");
+
+  return (
+    <div className="flex gap-2">
+      <div className="flex flex-col gap-1">
+        <p className="mb-2">
+          Activable button for a <b>NavBar</b>
+        </p>
+        <div className="flex">
+          <Button
+            color="info"
+            active={active === "home"}
+            onClick={() => setActive("home")}
+            variant="tab"
+            iconProps="done-all"
+          >
+            Home
+          </Button>
+          <Button
+            color="info"
+            active={active === "gallery"}
+            onClick={() => setActive("gallery")}
+            variant="tab"
+            iconProps="done-all"
+          >
+            Gallery
+          </Button>
+          <Button
+            color="info"
+            active={active === "settings"}
+            onClick={() => setActive("settings")}
+            variant="tab"
+            iconProps="done-all"
+          >
+            Settings
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export const Side_Button = () => {
+  const [active, setActive] = useState("home");
+
+  return (
+    <div className="flex gap-2">
+      <div className="flex flex-col gap-1 pr-[200px]">
+        <p className="mb-2">
+          Activable button for a <b>Sidebar</b> navigation.
+        </p>
+        <Button
+          color="warning"
+          active={active === "home"}
+          onClick={() => setActive("home")}
+          variant="nav"
+          iconProps="done-all"
+        >
+          Home
+        </Button>
+        <Button
+          color="warning"
+          active={active === "gallery"}
+          onClick={() => setActive("gallery")}
+          variant="nav"
+          iconProps="done-all"
+        >
+          Gallery
+        </Button>
+        <Button
+          color="warning"
+          active={active === "settings"}
+          onClick={() => setActive("settings")}
+          variant="nav"
+          iconProps="done-all"
+        >
+          Settings
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+export const Custom_Colors: Story = {
+  render: () => (
+    <div className="flex gap-2">
+      <div className="flex flex-col gap-1">
+        <p className="mb-2">Apply custom colors </p>
+        <Button
+          color="success"
+          iconProps="done-all"
+          className="fill-primary bg-sky-200 !text-sky-800"
+        >
+          Success
         </Button>
       </div>
     </div>
