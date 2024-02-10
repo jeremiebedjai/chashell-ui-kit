@@ -1,4 +1,4 @@
-import React, { InputHTMLAttributes, useState } from "react";
+import React, { InputHTMLAttributes, useMemo, useState } from "react";
 import Button from "../Button";
 
 type InputProps = {
@@ -20,33 +20,62 @@ const Input = ({ label, error, ...props }: InputProps) => {
   );
 };
 
-
 type FileProps = {
-  buttonProps?: Parameters<typeof Button>[0]
-} & InputProps
+  buttonProps?: Parameters<typeof Button>[0];
+} & InputProps;
 Input.File = ({ label, error, buttonProps, ...props }: FileProps) => {
+  const elementId = useMemo(
+    () => (Math.random() + 1).toString(36).substring(7),
+    [],
+  );
   const [displayValue, setDisplayValue] = useState(props.value);
 
-  if (props.type === "file") {
-    return (
-      <>
-        <input
-          {...props}
-          id={props.name}
-          onChange={(event) => {
-            setDisplayValue(event.target.files?.item(0)?.name);
-            props.onChange && props.onChange(event)
-          }}
-          className="w-[0.1px] h-[0.1px] opacity-0 overflow-hidden absolute z-[-1]"
-        />
-        <label className="inline-flex" htmlFor={props.name}>
-          <Button iconProps="download" color={Button.Colors.gray} {...buttonProps}>
-            {displayValue ?? label ?? "Choose a file"}
-          </Button>
-        </label>
-      </>
-    );
-  }
-}
+  return (
+    <>
+      <input
+        {...props}
+        type="file"
+        id={elementId}
+        onChange={(event) => {
+          setDisplayValue(event.target.files?.item(0)?.name);
+          props.onChange && props.onChange(event);
+        }}
+        className="w-[0.1px] h-[0.1px] opacity-0 overflow-hidden absolute z-[-1]"
+      />
+      <label
+        className="inline-flex"
+        htmlFor={elementId}
+        onClick={(event) => {
+          const inputElement = document.getElementById(
+            elementId,
+          ) as HTMLInputElement | null;
+
+          if (inputElement?.value) {
+            inputElement.value = "";
+            setDisplayValue(undefined);
+
+            if (props.onChange) {
+              const event = {
+                target: { value: "" } as HTMLInputElement,
+              } as React.ChangeEvent<HTMLInputElement>;
+
+              props.onChange(event);
+            }
+
+            event.preventDefault();
+          }
+        }}
+      >
+        <Button
+          iconProps={displayValue ? "close" : "download"}
+          color={Button.Colors.gray}
+          {...buttonProps}
+        >
+          {error ?? displayValue ?? label ?? "Choose a file"}
+        </Button>
+      </label>
+    </>
+  );
+};
 
 export default Input;

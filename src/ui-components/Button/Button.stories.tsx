@@ -34,6 +34,7 @@ const meta = {
     children: "Button",
     color: "gray",
     iconProps: "info",
+    loading: false
   },
 } satisfies Meta<typeof Button>;
 export default meta;
