@@ -2,8 +2,29 @@ import React, { useContext } from "react";
 import ChashelUiCtx from "../../contexts/ChashelUi.ctx";
 import Icon from "../Icon";
 
-const DarkModButton = () => {
+const DarkModButtonVariants = {
+  toggle: "toggle",
+  icon: "icon",
+};
+
+type DarkModButtonProps = {
+  size?: number;
+  variant?: (typeof DarkModButtonVariants)[keyof typeof DarkModButtonVariants];
+};
+const DarkModButton = ({ variant = "toggle", size }: DarkModButtonProps) => {
   const { darkMod, setDarkMod } = useContext(ChashelUiCtx);
+  const iconElement = (
+    <Icon
+      key={darkMod ? "moon" : "sun"}
+      name={darkMod ? "moon" : "sun"}
+      color={variant === "toggle" ? (darkMod ? "#d3c49f" : "#ffbe18") : ""}
+      size={(variant === "icon" && size) || 20}
+    />
+  );
+
+  if (variant === "icon") {
+    return <span className="cursor-pointer" onClick={() => setDarkMod(!darkMod)}>{iconElement}</span>;
+  }
 
   return (
     <div
@@ -14,14 +35,12 @@ const DarkModButton = () => {
         className="absolute rounded-full h-6 w-6 bg-light1 dark:bg-dark1 shadow border border-[3px] box-content border-slate-900/[.2]
          dark:border-slate-400/[.2] flex items-center justify-center transition-all left-0 dark:left-[30px]"
       >
-        <Icon
-          key={darkMod ? "moon" : "sun"}
-          name={darkMod ? "moon" : "sun"}
-          color={darkMod ? "#d3c49f" : "#ffbe18"}
-          size={20}
-        />
+        {iconElement}
       </div>
     </div>
   );
 };
+
+DarkModButton.Variants = DarkModButtonVariants;
+
 export default DarkModButton;

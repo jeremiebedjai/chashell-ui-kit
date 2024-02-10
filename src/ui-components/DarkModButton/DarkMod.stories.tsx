@@ -9,15 +9,25 @@ const meta = {
   parameters: {
     layout: "centered",
   },
+  argTypes: {
+    variant: {
+      control: "select",
+      options: ["toggle", "icon"],
+    },
+  },
+  args: {
+    variant: "toggle",
+    size: 30,
+  },
   tags: ["autodocs"],
 } satisfies Meta<typeof DarkModButton>;
 export default meta;
 type Story = StoryObj<typeof DarkModButton>;
 
 export const Try_It: Story = {
-  render: () => (
+  render: (props) => (
     <Theme>
-      <DarkModButton />
+      <DarkModButton {...props} />
     </Theme>
   ),
 };

@@ -54,10 +54,10 @@ type ItemProps = {
   children: ReactNode;
   name: string;
   className?: string;
-  buttonProps: Parameters<typeof Button>[0];
+  buttonProps?: Parameters<typeof Button>[0];
 };
 
-Navbar.Item = ({ children, name, className,buttonProps }: ItemProps) => {
+Navbar.Item = ({ children, name, className, buttonProps }: ItemProps) => {
   const { active, onCallback } = useContext(NavbarContext);
   const isActive = active === name;
 
